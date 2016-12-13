@@ -56,6 +56,17 @@
     return hud;
 }
 
+- (void)lf_showHUDAnimated:(BOOL)animated afterDelay:(NSTimeInterval)delay{
+    
+    NSTimer *timer = [NSTimer timerWithTimeInterval:delay target:self selector:@selector(handleShowTimer:) userInfo:@{animated} repeats:NO];
+    [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+}
+
+- (void)handleShowTimer:(NSTimer *)timer{
+    
+    [self lf_showHUDAnimated:[timer.userInfo boolValue]];
+}
+
 
 
 - (void)popupMessage:(NSString*)message offsetY:(CGFloat)offsetY animated:(BOOL)animated {
