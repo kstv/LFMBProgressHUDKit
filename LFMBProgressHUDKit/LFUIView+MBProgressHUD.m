@@ -8,6 +8,9 @@
 
 #import "LFUIView+MBProgressHUD.h"
 #import "LFMBProgressHUD.h"
+#import <objc/runtime.h>
+
+static const void *_showHudStatus = &_showHudStatus;
 
 @implementation UIView (LFMBProgressHUDAdditions)
 
@@ -58,13 +61,30 @@
 
 - (void)lf_showHUDAnimated:(BOOL)animated afterDelay:(NSTimeInterval)delay{
     
-    NSTimer *timer = [NSTimer timerWithTimeInterval:delay target:self selector:@selector(handleShowTimer:) userInfo:@{animated} repeats:NO];
+    [self setShowHudStatus:YES];
+    NSTimer *timer = [NSTimer timerWithTimeInterval:delay target:self selector:@selector(handleShowTimer:) userInfo:@(animated) repeats:NO];
     [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
 }
 
 - (void)handleShowTimer:(NSTimer *)timer{
     
-    [self lf_showHUDAnimated:[timer.userInfo boolValue]];
+    if ([self showHudStatus]) {
+        [self lf_showHUDAnimated:[timer.userInfo boolValue]];
+    }
+    
+}
+
+- (void)setShowHudStatus:(BOOL)status{
+    
+    objc_setAssociatedObject(self, _showHudStatus, @(status), OBJC_ASSOCIATION_ASSIGN);
+}
+
+- (BOOL)showHudStatus{
+    
+    if (objc_getAssociatedObject(self, _showHudStatus)) {
+        return [objc_getAssociatedObject(self, _showHudStatus) boolValue];
+    }
+    return YES;
 }
 
 
@@ -110,6 +130,7 @@
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    [self setShowHudStatus:NO];
     [LFMBProgressHUD hideAllHUDsForView:self animated:animated];
 #pragma clang diagnostic pop
 }

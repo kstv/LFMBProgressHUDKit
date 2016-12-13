@@ -27,6 +27,7 @@
 - (void)lf_hideHUDAnimated:(BOOL)animated;
 
 /**
+ @abstract  延迟显示动画
  @param animated 是否支持动画
  @param delay  延迟显示动画时间
  */
